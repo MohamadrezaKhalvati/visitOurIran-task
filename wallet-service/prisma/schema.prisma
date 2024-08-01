@@ -1,0 +1,33 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id         String   @id @default(uuid()) @db.Uuid
+    username   String
+    firstName  String
+    lastName   String
+    gender     Gender
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+    wallet     Wallet?
+}
+
+model Wallet {
+    id         String   @id @default(uuid()) @db.Uuid
+    amount     Float    @default(0)
+    user       User     @relation(fields: [userId], references: [id])
+    userId     String   @unique @db.Uuid
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+enum Gender {
+    MALE
+    FEMALE
+}

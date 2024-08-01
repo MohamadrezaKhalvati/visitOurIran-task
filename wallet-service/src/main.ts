@@ -1,23 +1,25 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import { Logger } from '@nestjs/common'
+import { NestFactory } from '@nestjs/core'
+import { MicroserviceOptions, Transport } from '@nestjs/microservices'
+import { AppModule } from './app.module'
+
+const logger = new Logger()
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  const microserviceOptions: MicroserviceOptions = {
-    transport: Transport.RMQ,
-    options: {
-      urls: ['amqp://localhost:5672'],
-      queue: 'main_queue',
-      queueOptions: {
-        durable: false,
-      },
-    },
-  };
-
-  app.connectMicroservice(microserviceOptions);
-  await app.startAllMicroservices();
-  await app.listen(3002);
+    const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+        AppModule,
+        {
+            transport: Transport.RMQ,
+            options: {
+                urls: ['amqp://localhost:5672'],
+                queue: 'wallet_queue',
+                queueOptions: {
+                    durable: false,
+                },
+            },
+        },
+    )
+    logger.log('Microservice Wallet is listening')
+    app.listen()
 }
-bootstrap();
+bootstrap()

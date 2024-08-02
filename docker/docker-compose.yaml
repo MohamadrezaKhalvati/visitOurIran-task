@@ -1,57 +1,82 @@
-version: '3.8'
-
 services:
-  api-gateway:
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - user-service
-      - wallet-service
-
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/visit-our-iran
-      - RABBITMQ_URL=amqp://rabbitmq
-      - RABBITMQ_QUEUE=user_queue
-    depends_on:
-      - db
-      - rabbitmq
-
-  wallet-service:
-    build:
-      context: ./wallet-service
-      dockerfile: Dockerfile
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/visit-our-iran
-      - RABBITMQ_URL=amqp://rabbitmq
-      - RABBITMQ_QUEUE=wallet_queue
-    depends_on:
-      - db
-      - rabbitmq
 
   db:
     image: postgres:13
+    networks:
+      - visit_our_iran
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 1234
       POSTGRES_DB: visit-our-iran
     volumes:
       - db_data:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:3-management
+    container_name: rabbitmq
+    networks:
+      - visit_our_iran
     ports:
       - "15672:15672"
       - "5672:5672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  redis:
+    image: redis:6
+    container_name: rediss
+    networks:
+      - visit_our_iran
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  api-gateway:
+    image:  api-gateway
+    container_name: api-gateway
+    networks:
+      - visit_our_iran
+    ports:
+      - "3001:3001"
+    depends_on:
+      - rabbitmq
+      - user-service
+      - wallet-service
+
+  user-service:
+    image : user-service
+    container_name: user-service
+    networks:
+      - visit_our_iran
+    environment:
+      - DATABASE_URL=postgresql://root:1234@db:5432/visit-our-iran
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - RABBITMQ_QUEUE=user_queue
+    depends_on:
+      - db
+      - rabbitmq
+
+  wallet-service:
+    image : wallet-service
+    container_name:  wallet-service
+    networks:
+      - visit_our_iran
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://root:1234@db:5432/visit-our-iran
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - RABBITMQ_QUEUE=wallet_queue
+      - REDIS_URL=redis://redis:6379
+     
+    
+
+networks:
+ visit_our_iran:
 volumes:
   db_data:
   rabbitmq_data:
+  redis_data:

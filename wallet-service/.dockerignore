@@ -1,0 +1,11 @@
+.git
+.gitignore
+.dockerignore
+.eslintrc.js
+.prettierrc
+.vscode
+README.md
+package-lock.json
+# Build dependencies
+dist
+node_modules

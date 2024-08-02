@@ -9,8 +9,7 @@ import { WalletModule } from './module/wallet/wallet.module'
         CacheModule.register({
             isGlobal: true,
             store: redisStore,
-            host: process.env.REDIS_HOST,
-            port: process.env.REDIS_PORT,
+            url: 'redis://rediss:6379',
         }),
     ],
     controllers: [],

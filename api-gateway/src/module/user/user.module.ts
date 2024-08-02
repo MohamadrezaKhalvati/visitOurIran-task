@@ -10,8 +10,19 @@ import { UserService } from './user.service'
                 name: 'USER_SERIVCE',
                 transport: Transport.RMQ,
                 options: {
-                    urls: ['amqp://localhost:5672'],
-                    queue: 'user_queue',
+                    urls: [process.env.RABBITMQ_URL],
+                    queue: process.env.USER_QUEUE,
+                    queueOptions: {
+                        durable: false,
+                    },
+                },
+            },
+            {
+                name: 'WALLET_SERIVCE',
+                transport: Transport.RMQ,
+                options: {
+                    urls: [process.env.RABBITMQ_URL],
+                    queue: process.env.WALLET_QUEUE,
                     queueOptions: {
                         durable: false,
                     },

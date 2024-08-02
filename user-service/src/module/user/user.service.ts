@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateUserInput } from './dto/create-user.input'
+import { UpdateUserInput } from './dto/update-user.input'
 
 @Injectable()
 export class UserService {
@@ -15,8 +16,6 @@ export class UserService {
 
     async createUser(input: CreateUserInput) {
         const { username } = input
-        // await this.verifyIfUserNameUnique(username)
-        console.log(username)
         const user = await this.prisma.user.create({
             data: {
                 firstName: input.firstName,
@@ -26,22 +25,25 @@ export class UserService {
             },
             select: this.userSelectedData,
         })
-        return { message: 'User created successfully', status: 201 }
+        return user
     }
-
-    // async verifyIfUserNameUnique(username: string) {
-    //     const user = await this.prisma.user.findFirst({
-    //         where: {
-    //             username: username,
-    //         },
-    //     })
-
-    //     if (user) {
-    //         throw new BadRequestException('Username is already exist!')
-    //     }
-    // }
 
     async readUser() {
         return await this.prisma.user.findMany()
+    }
+
+    async updateUser(input: UpdateUserInput) {
+        await this.prisma.user.update({
+            where: {
+                id: input.id,
+            },
+            data: {
+                firstName: input.firstName,
+                lastName: input.lastName,
+                gender: input.gender,
+                username: input.username,
+            },
+            select: this.userSelectedData,
+        })
     }
 }

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - wallet-service
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/visit-our-iran
+      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_QUEUE=user_queue
+    depends_on:
+      - db
+      - rabbitmq
+
+  wallet-service:
+    build:
+      context: ./wallet-service
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/visit-our-iran
+      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_QUEUE=wallet_queue
+    depends_on:
+      - db
+      - rabbitmq
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: visit-our-iran
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  db_data:
+  rabbitmq_data:

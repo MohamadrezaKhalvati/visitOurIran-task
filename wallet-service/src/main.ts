@@ -11,8 +11,8 @@ async function bootstrap() {
         {
             transport: Transport.RMQ,
             options: {
-                urls: ['amqp://localhost:5672'],
-                queue: 'wallet_queue',
+                urls: [process.env.RABBITMQ_URL],
+                queue: process.env.RABBITMQ_QUEUE,
                 queueOptions: {
                     durable: false,
                 },

@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Body, Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { CreateUserInput } from './dto/create-user.input'
+import { UpdateUserInput } from './dto/update-user.input'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -21,5 +22,13 @@ export class UserController {
     @ApiResponse({ status: 200 })
     async readUser() {
         return await this.userService.readUsers()
+    }
+
+    @Put('updateUser')
+    @ApiOperation({ summary: 'Update user', operationId: 'UpdateUser' })
+    @ApiResponse({ status: 200 })
+    @ApiBody({ type: UpdateUserInput })
+    async updateUser(@Body() input: UpdateUserInput) {
+        return await this.userService.updateUser(input)
     }
 }

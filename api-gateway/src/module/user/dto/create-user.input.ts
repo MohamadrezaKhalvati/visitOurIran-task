@@ -1,10 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator'
-
-enum Gender {
-    FEMALE = 'FEMALE',
-    MALE = 'MALE',
-}
+import { Gender } from 'src/common/inputField'
 
 export class CreateUserInput {
     @ApiProperty()
